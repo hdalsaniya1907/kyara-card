@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kyara Intelligence · Digital Card</title>
-<link rel="icon" type="image/svg+xml" href="brand/logo/favicon.svg">
+<link rel="icon" type="image/png" href="brand/logo/kyara-icon.png">
 <meta name="theme-color" content="#0B0D11">
 <meta property="og:title" content="Kyara Intelligence">
 <meta property="og:description" content="AI Systems That Save Time and Grow Revenue">
@@ -21,16 +21,16 @@
     --ink:#F1ECE2;
     --muted:#9AA1AE;
     --faint:#6B7280;
-    --brass:#CDA253;
-    --brass-deep:#B7863A;
+    --brass:#2DD4BF;        /* brand teal (matches the logo) */
+    --brass-deep:#14B8A6;   /* deeper teal for hovers */
     --line:#262D38;
-    --brass-line:rgba(205,162,83,.28);
+    --brass-line:rgba(45,212,191,.30);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{
     background:
-      radial-gradient(900px 500px at 50% -8%, rgba(205,162,83,.10), transparent 60%),
+      radial-gradient(900px 500px at 50% -8%, rgba(45,212,191,.10), transparent 60%),
       var(--bg);
     color:var(--ink);
     font-family:"Inter",system-ui,sans-serif;
@@ -50,17 +50,11 @@
   .card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
     background:linear-gradient(90deg,transparent,var(--brass),transparent);opacity:.7;}
 
-  .seal{width:62px;height:62px;margin:0 auto 16px;border-radius:50%;
-    border:1.5px solid var(--brass-line);display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 50% 35%, rgba(205,162,83,.14), transparent 70%);
-    position:relative;}
-  .seal span{font-family:"Fraunces",serif;font-weight:600;font-size:22px;color:var(--brass);letter-spacing:.02em;}
-  .seal img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;}
-  .seal-mark{width:38px;height:38px;}
-  .seal.has-logo{background:none;padding:0;overflow:hidden;}
-
-  .wordmark{text-align:center;font-size:11px;letter-spacing:.34em;text-transform:uppercase;
-    color:var(--brass);font-weight:600;margin-bottom:18px;}
+  /* brand logo lockup at the top of the card */
+  .brand{display:flex;justify-content:center;align-items:center;margin:2px 0 14px;}
+  .brand img{width:min(290px,84%);height:auto;display:block;
+    filter:drop-shadow(0 6px 22px rgba(45,212,191,.16));}
+  .brand.is-custom img{width:74px;height:74px;object-fit:contain;border-radius:14px;}
 
   .name{text-align:center;font-family:"Fraunces",serif;font-weight:500;font-size:27px;
     line-height:1.1;letter-spacing:-.01em;margin:0;}
@@ -125,7 +119,7 @@
   .field input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;
     padding:11px 12px;font:inherit;font-size:14.5px;color:var(--ink);}
   .field input::placeholder{color:var(--faint);}
-  .field input:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px rgba(205,162,83,.15);}
+  .field input:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px rgba(45,212,191,.15);}
 
   footer{max-width:420px;margin:22px auto 0;text-align:center;color:var(--faint);font-size:11.5px;line-height:1.6;}
   footer b{color:var(--brass);letter-spacing:.05em;font-weight:600;}
@@ -147,8 +141,7 @@
 <body>
 <div class="stage">
   <div class="card" id="card">
-    <div class="seal" id="seal"><img id="logoImg" alt="Logo" style="display:none" /><svg id="logoMark" class="seal-mark" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="sealBrass" cx=".5" cy=".4" r=".62"><stop offset="0" stop-color="#EBCB86"/><stop offset="1" stop-color="#B7863A"/></radialGradient></defs><path d="M32 7 Q36 28 56 32 Q36 36 32 57 Q28 36 8 32 Q28 28 32 7 Z" fill="url(#sealBrass)"/><path d="M47 13 Q48.3 18 53 19.3 Q48.3 20.6 47 25.6 Q45.7 20.6 41 19.3 Q45.7 18 47 13 Z" fill="#F1ECE2" opacity=".9"/></svg></div>
-    <div class="wordmark" id="wordmark">KYARA INTELLIGENCE</div>
+    <div class="brand" id="brand"><img id="logoImg" alt="Kyara Intelligence" src="brand/logo/kyara-fulllogo.svg" /></div>
     <h1 class="name" id="d-name">Your Name</h1>
     <p class="title" id="d-title">Title</p>
     <p class="tagline" id="d-tagline"></p>
@@ -196,7 +189,7 @@
     <div class="field"><label>Location</label><input id="f-location" type="text" placeholder="Ottawa, ON" /></div>
     <div class="field"><label>LinkedIn (optional)</label><input id="f-linkedin" type="text" placeholder="linkedin.com/in/…" /></div>
     <div class="field"><label>Logo (optional)</label><input id="f-logo" type="file" accept="image/*" />
-    <p class="sub" id="logoNote" style="margin:8px 0 0">Upload a logo to replace the “KI” monogram. <a id="logoRemove" style="color:var(--brass);cursor:pointer;display:none">Remove</a></p></div>
+    <p class="sub" id="logoNote" style="margin:8px 0 0">Showing the Kyara Intelligence logo. Upload to override it. <a id="logoRemove" style="color:var(--brass);cursor:pointer;display:none">Reset to Kyara logo</a></p></div>
   </div>
 
   <footer>
@@ -209,6 +202,7 @@
 
 <script>
 const KEY="kyara-bizcard-v1";
+const BRAND_LOGO="brand/logo/kyara-fulllogo.svg";  // default header logo (full lockup)
 const ICONS={
   email:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>',
   phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
@@ -296,24 +290,18 @@ function row(type,label,value,href,wrap){
     </button></div>`;
 }
 
-function renderSeal(){
-  const seal=document.getElementById("seal");
+function renderBrand(){
+  const brand=document.getElementById("brand");
   const img=document.getElementById("logoImg");
-  const mark=document.getElementById("logoMark");
-  if(state.logo){
-    img.src=state.logo; img.style.display="block";
-    mark.style.display="none"; seal.classList.add("has-logo");
-  }else{
-    img.style.display="none"; img.removeAttribute("src");
-    mark.style.display="block"; seal.classList.remove("has-logo");
-  }
+  // state.logo = a custom uploaded logo; otherwise show the full Kyara lockup
+  img.src=state.logo||BRAND_LOGO;
+  brand.classList.toggle("is-custom",!!state.logo);
   const rm=document.getElementById("logoRemove");
   if(rm) rm.style.display=state.logo?"inline":"none";
 }
 
 function renderCard(){
-  renderSeal();
-  document.getElementById("wordmark").textContent=(state.company||"Kyara Intelligence").toUpperCase();
+  renderBrand();
   document.getElementById("d-name").textContent=state.name||"Your Name";
   document.getElementById("d-title").textContent=[state.title].filter(Boolean).join("");
   document.getElementById("d-title").style.display=state.title?"block":"none";
@@ -392,13 +380,42 @@ function downloadVCard(){
   toast("Contact file downloaded");
 }
 
+function buildShareText(){
+  const L=[];
+  const head=[state.name,state.title].filter(Boolean).join(" · ");
+  if(head) L.push(head);
+  if(state.company && state.company!==state.name) L.push(state.company);
+  if(state.tagline) L.push(state.tagline.trim());
+  if(state.phone) L.push("Phone: "+state.phone.trim());
+  if(state.email) L.push("Email: "+state.email.trim());
+  if(state.website) L.push("Web: "+stripScheme(normUrl(state.website)));
+  if(state.linkedin) L.push("LinkedIn: "+stripScheme(normUrl(state.linkedin)));
+  if(state.location) L.push("Location: "+state.location.trim());
+  return L.join("\n").trim();
+}
+
 async function shareCard(){
+  const text=buildShareText();
   const site=state.website?normUrl(state.website):"";
-  const text=[state.name,state.title?("· "+state.title):"",state.company].filter(Boolean).join(" ");
+  // 1) Share the vCard FILE where supported, so the recipient can one-tap save
+  //    the full contact (incl. phone) on any platform.
   try{
-    if(navigator.share){ await navigator.share({title:state.company||"Digital card", text:text, url:site||undefined}); return; }
+    if(navigator.canShare){
+      const file=new File([buildVCard()],
+        (state.company||state.name||"contact").replace(/[^\w]+/g,"")+".vcf",
+        {type:"text/vcard"});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:state.company||"Digital card",text:text});
+        return;
+      }
+    }
   }catch(e){ if(e&&e.name==="AbortError") return; }
-  copyText(site||text);
+  // 2) Fall back to sharing the contact details as text via the native sheet.
+  try{
+    if(navigator.share){ await navigator.share({title:state.company||"Digital card",text:text,url:site||undefined}); return; }
+  }catch(e){ if(e&&e.name==="AbortError") return; }
+  // 3) Last resort: copy the full contact (incl. phone) to the clipboard.
+  copyText(text+(site&&!/Web: /.test(text)?("\n"+site):""));
 }
 
 async function copyText(txt){
