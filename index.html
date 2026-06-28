@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kyara Intelligence · Digital Card</title>
+<link rel="icon" type="image/svg+xml" href="brand/logo/favicon.svg">
+<meta name="theme-color" content="#0B0D11">
+<meta property="og:title" content="Kyara Intelligence">
+<meta property="og:description" content="AI Systems That Save Time and Grow Revenue">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --bg:#0B0D11;
+    --card:#14181F;
+    --card-2:#181D26;
+    --ink:#F1ECE2;
+    --muted:#9AA1AE;
+    --faint:#6B7280;
+    --brass:#CDA253;
+    --brass-deep:#B7863A;
+    --line:#262D38;
+    --brass-line:rgba(205,162,83,.28);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(900px 500px at 50% -8%, rgba(205,162,83,.10), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding:26px 16px 90px;
+  }
+  .stage{max-width:420px;margin:0 auto;}
+
+  /* ---------- Card ---------- */
+  .card{
+    position:relative;background:linear-gradient(180deg,var(--card-2),var(--card));
+    border:1px solid var(--line);border-radius:22px;padding:30px 26px 26px;
+    box-shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 24px 60px -20px rgba(0,0,0,.7);
+    overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--brass),transparent);opacity:.7;}
+
+  .seal{width:62px;height:62px;margin:0 auto 16px;border-radius:50%;
+    border:1.5px solid var(--brass-line);display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 35%, rgba(205,162,83,.14), transparent 70%);
+    position:relative;}
+  .seal span{font-family:"Fraunces",serif;font-weight:600;font-size:22px;color:var(--brass);letter-spacing:.02em;}
+  .seal img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;}
+  .seal-mark{width:38px;height:38px;}
+  .seal.has-logo{background:none;padding:0;overflow:hidden;}
+
+  .wordmark{text-align:center;font-size:11px;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--brass);font-weight:600;margin-bottom:18px;}
+
+  .name{text-align:center;font-family:"Fraunces",serif;font-weight:500;font-size:27px;
+    line-height:1.1;letter-spacing:-.01em;margin:0;}
+  .title{text-align:center;color:var(--muted);font-size:14px;margin:6px 0 0;}
+  .tagline{text-align:center;color:var(--faint);font-size:13px;margin:10px auto 0;max-width:30ch;line-height:1.45;}
+
+  .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:22px 0 6px;}
+
+  /* ---------- Contact rows ---------- */
+  .rows{display:flex;flex-direction:column;}
+  .row{display:flex;align-items:center;gap:13px;padding:11px 2px;border-bottom:1px solid var(--line);}
+  .row:last-child{border-bottom:none;}
+  .row.hidden{display:none;}
+  .ricon{flex:none;width:34px;height:34px;border-radius:10px;background:#1E2530;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--brass);}
+  .ricon svg{width:16px;height:16px;}
+  .rmain{flex:1;min-width:0;}
+  .rlabel{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);}
+  .rval{display:block;color:var(--ink);font-size:14.5px;text-decoration:none;margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rval:hover{color:var(--brass);}
+  .rval.wrap{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.35;}
+  .rcopy{flex:none;border:none;background:none;color:var(--faint);cursor:pointer;padding:7px;border-radius:8px;}
+  .rcopy:hover{color:var(--brass);background:#1E2530;}
+  .rcopy svg{width:15px;height:15px;}
+
+  /* ---------- QR ---------- */
+  .qrwrap{margin-top:20px;text-align:center;}
+  .qrtoggle{display:inline-flex;background:#1E2530;border:1px solid var(--line);border-radius:99px;padding:3px;margin-bottom:14px;}
+  .qrtoggle button{appearance:none;border:none;background:none;color:var(--muted);font:inherit;font-size:12px;font-weight:500;
+    padding:6px 15px;border-radius:99px;cursor:pointer;}
+  .qrtoggle button.on{background:var(--brass);color:#15110A;font-weight:600;}
+  #qr{width:168px;height:168px;margin:0 auto;background:#fff;border-radius:14px;padding:11px;display:flex;align-items:center;justify-content:center;}
+  #qr img,#qr canvas{display:block;}
+  .qrhint{color:var(--faint);font-size:11.5px;margin-top:9px;line-height:1.4;}
+  .qrhint a{color:var(--brass);cursor:pointer;text-decoration:none;}
+  .qrfallback{color:#9AA1AE;font-size:12px;text-align:center;padding:0 10px;}
+
+  /* ---------- Actions ---------- */
+  .actions{display:flex;gap:10px;margin-top:22px;}
+  .btn{flex:1;appearance:none;border:1px solid var(--line);background:#1B212B;color:var(--ink);
+    font:inherit;font-size:14px;font-weight:600;padding:13px 12px;border-radius:12px;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .05s,background .15s,border-color .15s;}
+  .btn:active{transform:translateY(1px);}
+  .btn svg{width:17px;height:17px;}
+  .btn.primary{background:var(--brass);border-color:var(--brass);color:#15110A;}
+  .btn.primary:hover{background:var(--brass-deep);}
+  .btn.ghost:hover{border-color:var(--brass-line);}
+
+  /* ---------- Edit panel ---------- */
+  .editbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;
+    background:none;border:1px dashed var(--line);color:var(--muted);font:inherit;font-size:13px;font-weight:500;
+    padding:11px;border-radius:12px;cursor:pointer;}
+  .editbtn:hover{border-color:var(--brass-line);color:var(--ink);}
+  .editbtn svg{width:15px;height:15px;}
+  .editor{display:none;margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;}
+  .editor.open{display:block;}
+  .editor h3{margin:0 0 4px;font-family:"Fraunces",serif;font-weight:500;font-size:17px;}
+  .editor .sub{color:var(--faint);font-size:12px;margin:0 0 16px;}
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;}
+  .field input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;
+    padding:11px 12px;font:inherit;font-size:14.5px;color:var(--ink);}
+  .field input::placeholder{color:var(--faint);}
+  .field input:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px rgba(205,162,83,.15);}
+
+  footer{max-width:420px;margin:22px auto 0;text-align:center;color:var(--faint);font-size:11.5px;line-height:1.6;}
+  footer b{color:var(--brass);letter-spacing:.05em;font-weight:600;}
+
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;}}
+
+  /* ---------- Print ---------- */
+  @media print{
+    body{background:#fff;padding:0;}
+    .card{border:1px solid #ccc;box-shadow:none;background:#14181F;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .editbtn,.editor,.actions,.qrtoggle,.rcopy,footer{display:none!important;}
+  }
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#fff;color:#15110A;
+    padding:11px 20px;border-radius:11px;font-size:13.5px;font-weight:600;z-index:60;opacity:0;transition:opacity .2s;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="card" id="card">
+    <div class="seal" id="seal"><img id="logoImg" alt="Logo" style="display:none" /><svg id="logoMark" class="seal-mark" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="sealBrass" cx=".5" cy=".4" r=".62"><stop offset="0" stop-color="#EBCB86"/><stop offset="1" stop-color="#B7863A"/></radialGradient></defs><path d="M32 7 Q36 28 56 32 Q36 36 32 57 Q28 36 8 32 Q28 28 32 7 Z" fill="url(#sealBrass)"/><path d="M47 13 Q48.3 18 53 19.3 Q48.3 20.6 47 25.6 Q45.7 20.6 41 19.3 Q45.7 18 47 13 Z" fill="#F1ECE2" opacity=".9"/></svg></div>
+    <div class="wordmark" id="wordmark">KYARA INTELLIGENCE</div>
+    <h1 class="name" id="d-name">Your Name</h1>
+    <p class="title" id="d-title">Title</p>
+    <p class="tagline" id="d-tagline"></p>
+
+    <div class="rule"></div>
+
+    <div class="rows" id="rows"></div>
+
+    <div class="qrwrap">
+      <div class="qrtoggle">
+        <button id="qrWeb" class="on">Website</button>
+        <button id="qrContact">Save contact</button>
+      </div>
+      <div id="qr"></div>
+      <div class="qrhint" id="qrhint">Scan to open the website. <a id="dlqr">Save QR image</a></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="btnSave">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+        Save to contacts
+      </button>
+      <button class="btn ghost" id="btnShare">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4M12 2v14"/></svg>
+        Share
+      </button>
+    </div>
+  </div>
+
+  <button class="editbtn" id="editToggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Edit details
+  </button>
+
+  <div class="editor" id="editor">
+    <h3>Your details</h3>
+    <p class="sub">Edits save automatically and update the card, QR, and contact file live.</p>
+    <div class="field"><label>Full name</label><input id="f-name" type="text" placeholder="e.g. Hina Patel" /></div>
+    <div class="field"><label>Title / role</label><input id="f-title" type="text" placeholder="e.g. Co-Founder" /></div>
+    <div class="field"><label>Company</label><input id="f-company" type="text" placeholder="Kyara Intelligence" /></div>
+    <div class="field"><label>Tagline</label><input id="f-tagline" type="text" placeholder="e.g. AI products & vertical SaaS" /></div>
+    <div class="field"><label>Email</label><input id="f-email" type="email" placeholder="you@kyaraintelligence.com" /></div>
+    <div class="field"><label>Phone</label><input id="f-phone" type="tel" placeholder="+1 613 555 0123" /></div>
+    <div class="field"><label>Website</label><input id="f-website" type="text" placeholder="kyaraintelligence.com" /></div>
+    <div class="field"><label>Location</label><input id="f-location" type="text" placeholder="Ottawa, ON" /></div>
+    <div class="field"><label>LinkedIn (optional)</label><input id="f-linkedin" type="text" placeholder="linkedin.com/in/…" /></div>
+    <div class="field"><label>Logo (optional)</label><input id="f-logo" type="file" accept="image/*" />
+    <p class="sub" id="logoNote" style="margin:8px 0 0">Upload a logo to replace the “KI” monogram. <a id="logoRemove" style="color:var(--brass);cursor:pointer;display:none">Remove</a></p></div>
+  </div>
+
+  <footer>
+    <b>KYARA INTELLIGENCE</b><br>
+    Host this file on your domain (e.g. card.kyaraintelligence.com) and the same link works as your shareable card and your NFC tap target.
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY="kyara-bizcard-v1";
+const ICONS={
+  email:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  website:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z"/></svg>',
+  location:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  linkedin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>'
+};
+
+const DEFAULTS={
+  rev:3,
+  name:"Hina Dalsaniya & Kumar Patel",
+  title:"Owners & Co-Founders",
+  company:"Kyara Intelligence",
+  tagline:"AI Systems That Save Time and Grow Revenue",
+  email:"info@kyaraintelligence.com",
+  phone:"+1 705 571 9313",
+  website:"",
+  location:"Ottawa, ON",                                  // shown on the public card
+  locationFull:"122 Pathfinder Way, Ottawa, ON K1X 0C9",  // only in the downloaded contact (vCard)
+  linkedin:"",
+  logo:"",
+  qrMode:"contact"
+};
+let state=null, mem=null, t=null;
+
+async function load(){
+  // Stored edits only apply while they match the file's rev. When I bump DEFAULTS.rev,
+  // old browser data is ignored so file changes always show.
+  try{ if(window.storage&&window.storage.get){ const r=await window.storage.get(KEY); if(r&&r.value){ const v=JSON.parse(r.value); if(v.rev===DEFAULTS.rev) return {...DEFAULTS,...v}; } } }catch(e){}
+  try{ const ls=localStorage.getItem(KEY); if(ls){ const v=JSON.parse(ls); if(v.rev===DEFAULTS.rev) return {...DEFAULTS,...v}; } }catch(e){}
+  return mem||{...DEFAULTS};
+}
+async function save(){
+  const p=JSON.stringify(state); mem=JSON.parse(p);
+  try{ if(window.storage&&window.storage.set) await window.storage.set(KEY,p); }catch(e){}
+  try{ localStorage.setItem(KEY,p); }catch(e){}
+}
+let saveT=null; function queueSave(){ clearTimeout(saveT); saveT=setTimeout(save,300); }
+
+function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.style.opacity="1"; clearTimeout(t); t=setTimeout(()=>el.style.opacity="0",1600); }
+
+function normUrl(u){ if(!u) return ""; u=u.trim(); if(!/^https?:\/\//i.test(u)) u="https://"+u; return u; }
+function stripScheme(u){ return u.replace(/^https?:\/\//i,"").replace(/\/$/,""); }
+function telHref(p){ return "tel:"+p.replace(/[^\d+]/g,""); }
+
+function monogram(company){
+  const parts=company.trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "K";
+  if(parts.length===1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0]+parts[1][0]).toUpperCase();
+}
+
+function buildVCard(){
+  const company=(state.company||"").trim();
+  const people=(state.name||"").trim();
+  const fn=company||people||"Contact";
+  const L=[];
+  L.push("BEGIN:VCARD","VERSION:3.0");
+  // File the saved contact under the company name (shared company card)
+  L.push("N:"+fn+";;;;");
+  L.push("FN:"+fn);
+  if(company) L.push("ORG:"+company);
+  if(state.title) L.push("TITLE:"+state.title.trim());
+  if(state.email) L.push("EMAIL;TYPE=WORK:"+state.email.trim());
+  if(state.phone) L.push("TEL;TYPE=WORK,VOICE:"+state.phone.trim());
+  if(state.website) L.push("URL:"+normUrl(state.website));
+  if(state.linkedin) L.push("URL;TYPE=LinkedIn:"+normUrl(state.linkedin));
+  if(state.location||state.locationFull) L.push("ADR;TYPE=WORK:;;"+((state.locationFull||state.location)||"").trim()+";;;;");
+  const note=[];
+  if(people && people!==fn) note.push(people);
+  if(state.tagline) note.push(state.tagline.trim());
+  if(note.length) L.push("NOTE:"+note.join(" — "));
+  L.push("END:VCARD");
+  return L.join("\r\n");
+}
+
+function row(type,label,value,href,wrap){
+  const vc="rval"+(wrap?" wrap":"");
+  return `<div class="row" data-type="${type}">
+    <div class="ricon">${ICONS[type]}</div>
+    <div class="rmain"><span class="rlabel">${label}</span>
+    ${href?`<a class="${vc}" href="${href}">${value}</a>`:`<span class="${vc}">${value}</span>`}</div>
+    <button class="rcopy" data-copy="${value.replace(/"/g,'&quot;')}" title="Copy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    </button></div>`;
+}
+
+function renderSeal(){
+  const seal=document.getElementById("seal");
+  const img=document.getElementById("logoImg");
+  const mark=document.getElementById("logoMark");
+  if(state.logo){
+    img.src=state.logo; img.style.display="block";
+    mark.style.display="none"; seal.classList.add("has-logo");
+  }else{
+    img.style.display="none"; img.removeAttribute("src");
+    mark.style.display="block"; seal.classList.remove("has-logo");
+  }
+  const rm=document.getElementById("logoRemove");
+  if(rm) rm.style.display=state.logo?"inline":"none";
+}
+
+function renderCard(){
+  renderSeal();
+  document.getElementById("wordmark").textContent=(state.company||"Kyara Intelligence").toUpperCase();
+  document.getElementById("d-name").textContent=state.name||"Your Name";
+  document.getElementById("d-title").textContent=[state.title].filter(Boolean).join("");
+  document.getElementById("d-title").style.display=state.title?"block":"none";
+  const tg=document.getElementById("d-tagline");
+  tg.textContent=state.tagline||""; tg.style.display=state.tagline?"block":"none";
+
+  let html="";
+  if(state.email) html+=row("email","Email",state.email,"mailto:"+state.email);
+  if(state.phone) html+=row("phone","Phone",state.phone,telHref(state.phone));
+  if(state.website) html+=row("website","Website",stripScheme(normUrl(state.website)),normUrl(state.website));
+  if(state.linkedin) html+=row("linkedin","LinkedIn",stripScheme(normUrl(state.linkedin)),normUrl(state.linkedin));
+  if(state.location) html+=row("location","Location",state.location,null,true);
+  document.getElementById("rows").innerHTML=html;
+  document.querySelectorAll(".rcopy").forEach(b=>b.addEventListener("click",()=>{copyText(b.dataset.copy);}));
+
+  renderQR();
+}
+
+function renderQR(){
+  const box=document.getElementById("qr");
+  const hint=document.getElementById("qrhint");
+  box.innerHTML="";
+  let text="", reason="";
+  if(state.qrMode==="contact"){ text=buildVCard(); reason="Scan to save the contact."; }
+  else { text=state.website?normUrl(state.website):""; reason="Scan to open the website."; }
+  if(state.qrMode==="website" && !text){
+    box.innerHTML='<div class="qrfallback">Add a website in Edit details to generate this QR — or switch to “Save contact.”</div>';
+    hint.style.display="none"; return;
+  }
+  hint.style.display="block";
+  if(typeof QRCode==="undefined"){
+    box.innerHTML='<div class="qrfallback">QR needs an internet connection to render. The Save / Share buttons still work offline.</div>';
+    return;
+  }
+  new QRCode(box,{text:text,width:146,height:146,colorDark:"#14181F",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+  hint.innerHTML=reason+' <a id="dlqr">Save QR image</a>';
+  const dl=document.getElementById("dlqr"); if(dl) dl.addEventListener("click",saveQR);
+}
+
+function saveQR(){
+  const c=document.querySelector("#qr canvas");
+  if(!c){ toast("QR not ready"); return; }
+  const a=document.createElement("a"); a.href=c.toDataURL("image/png");
+  a.download=(state.company||"kyara").replace(/\s+/g,"")+"-QR.png"; a.click();
+  toast("QR image saved");
+}
+
+function setLogoFromFile(file){
+  if(!file){ return; }
+  if(!/^image\//.test(file.type)){ toast("Please choose an image"); return; }
+  const reader=new FileReader();
+  reader.onload=function(){
+    const img=new Image();
+    img.onload=function(){
+      const max=256; let w=img.width, h=img.height;
+      const scale=Math.min(1,max/Math.max(w,h));
+      w=Math.max(1,Math.round(w*scale)); h=Math.max(1,Math.round(h*scale));
+      const c=document.createElement("canvas"); c.width=w; c.height=h;
+      c.getContext("2d").drawImage(img,0,0,w,h);
+      try{ state.logo=c.toDataURL("image/png"); }catch(e){ state.logo=reader.result; }
+      renderCard(); queueSave(); toast("Logo added");
+    };
+    img.onerror=function(){ toast("Couldn’t read that image"); };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function downloadVCard(){
+  const blob=new Blob([buildVCard()],{type:"text/vcard;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download=(state.company||state.name||"contact").replace(/[^\w]+/g,"")+".vcf";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  toast("Contact file downloaded");
+}
+
+async function shareCard(){
+  const site=state.website?normUrl(state.website):"";
+  const text=[state.name,state.title?("· "+state.title):"",state.company].filter(Boolean).join(" ");
+  try{
+    if(navigator.share){ await navigator.share({title:state.company||"Digital card", text:text, url:site||undefined}); return; }
+  }catch(e){ if(e&&e.name==="AbortError") return; }
+  copyText(site||text);
+}
+
+async function copyText(txt){
+  try{ await navigator.clipboard.writeText(txt); toast("Copied"); }
+  catch(e){ const ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select();
+    try{document.execCommand("copy");toast("Copied");}catch(_){toast("Copy failed");} ta.remove(); }
+}
+
+function setQRMode(mode){
+  state.qrMode=mode;
+  document.getElementById("qrWeb").classList.toggle("on",mode==="website");
+  document.getElementById("qrContact").classList.toggle("on",mode==="contact");
+  renderQR(); queueSave();
+}
+
+function bindField(id,key){
+  const el=document.getElementById(id);
+  el.value=state[key]||"";
+  el.addEventListener("input",()=>{ state[key]=el.value; renderCard(); queueSave(); });
+}
+
+(async function init(){
+  state=await load();
+  ["name","title","company","tagline","email","phone","website","location","linkedin"]
+    .forEach(k=>bindField("f-"+k,k));
+  renderCard();
+  setQRMode(state.qrMode||"website");
+  document.getElementById("qrWeb").addEventListener("click",()=>setQRMode("website"));
+  document.getElementById("qrContact").addEventListener("click",()=>setQRMode("contact"));
+  document.getElementById("btnSave").addEventListener("click",downloadVCard);
+  document.getElementById("btnShare").addEventListener("click",shareCard);
+  const fLogo=document.getElementById("f-logo");
+  if(fLogo) fLogo.addEventListener("change",e=>{ setLogoFromFile(e.target.files&&e.target.files[0]); e.target.value=""; });
+  const rmLogo=document.getElementById("logoRemove");
+  if(rmLogo) rmLogo.addEventListener("click",()=>{ state.logo=""; renderCard(); queueSave(); toast("Logo removed"); });
+  document.getElementById("editToggle").addEventListener("click",()=>{
+    document.getElementById("editor").classList.toggle("open");
+  });
+})();
+</script>
+</body>
+</html>
