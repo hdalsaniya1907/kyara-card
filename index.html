@@ -152,11 +152,11 @@
 
     <div class="qrwrap">
       <div class="qrtoggle">
-        <button id="qrWeb" class="on">Website</button>
-        <button id="qrContact">Save contact</button>
+        <button id="qrWeb">Website</button>
+        <button id="qrContact" class="on">Save contact</button>
       </div>
       <div id="qr"></div>
-      <div class="qrhint" id="qrhint">Scan to open the website. <a id="dlqr">Save QR image</a></div>
+      <div class="qrhint" id="qrhint">Scan to save the contact. <a id="dlqr">Save QR image</a></div>
     </div>
 
     <div class="actions">
@@ -255,6 +255,10 @@ function monogram(company){
   return (parts[0][0]+parts[1][0]).toUpperCase();
 }
 
+// Escape free-text values per vCard 3.0 so commas/semicolons in edited fields
+// (taglines, addresses) don't get parsed as field separators on import.
+function vcEsc(s){ return String(s||"").replace(/\\/g,"\\\\").replace(/\r?\n/g,"\\n").replace(/[,;]/g,"\\$&"); }
+
 function buildVCard(){
   const company=(state.company||"").trim();
   const people=(state.name||"").trim();
@@ -262,19 +266,38 @@ function buildVCard(){
   const L=[];
   L.push("BEGIN:VCARD","VERSION:3.0");
   // File the saved contact under the company name (shared company card)
-  L.push("N:"+fn+";;;;");
-  L.push("FN:"+fn);
-  if(company) L.push("ORG:"+company);
-  if(state.title) L.push("TITLE:"+state.title.trim());
+  L.push("N:"+vcEsc(fn)+";;;;");
+  L.push("FN:"+vcEsc(fn));
+  if(company) L.push("ORG:"+vcEsc(company));
+  if(state.title) L.push("TITLE:"+vcEsc(state.title.trim()));
   if(state.email) L.push("EMAIL;TYPE=WORK:"+state.email.trim());
   if(state.phone) L.push("TEL;TYPE=WORK,VOICE:"+state.phone.trim());
   if(state.website) L.push("URL:"+normUrl(state.website));
   if(state.linkedin) L.push("URL;TYPE=LinkedIn:"+normUrl(state.linkedin));
-  if(state.location||state.locationFull) L.push("ADR;TYPE=WORK:;;"+((state.locationFull||state.location)||"").trim()+";;;;");
+  if(state.location||state.locationFull) L.push("ADR;TYPE=WORK:;;"+vcEsc(((state.locationFull||state.location)||"").trim())+";;;;");
   const note=[];
   if(people && people!==fn) note.push(people);
   if(state.tagline) note.push(state.tagline.trim());
-  if(note.length) L.push("NOTE:"+note.join(" — "));
+  if(note.length) L.push("NOTE:"+vcEsc(note.join(" — ")));
+  L.push("END:VCARD");
+  return L.join("\r\n");
+}
+
+// Compact vCard for the QR only. qrcodejs (v1) caps capacity (~2960 bits), so the
+// full vCard above overflows and renders blank. The QR carries the essentials —
+// name, company, title, phone, email, website — which is all a scan-to-save needs.
+function buildVCardQR(){
+  const company=(state.company||"").trim();
+  const people=(state.name||"").trim();
+  const fn=company||people||"Contact";
+  const L=[];
+  L.push("BEGIN:VCARD","VERSION:3.0");
+  L.push("FN:"+vcEsc(fn));
+  if(company) L.push("ORG:"+vcEsc(company));
+  if(state.title) L.push("TITLE:"+vcEsc(state.title.trim()));
+  if(state.phone) L.push("TEL;TYPE=WORK,VOICE:"+state.phone.trim());
+  if(state.email) L.push("EMAIL;TYPE=WORK:"+state.email.trim());
+  if(state.website) L.push("URL:"+normUrl(state.website));
   L.push("END:VCARD");
   return L.join("\r\n");
 }
@@ -325,7 +348,7 @@ function renderQR(){
   const hint=document.getElementById("qrhint");
   box.innerHTML="";
   let text="", reason="";
-  if(state.qrMode==="contact"){ text=buildVCard(); reason="Scan to save the contact."; }
+  if(state.qrMode==="contact"){ text=buildVCardQR(); reason="Scan to save the contact."; }
   else { text=state.website?normUrl(state.website):""; reason="Scan to open the website."; }
   if(state.qrMode==="website" && !text){
     box.innerHTML='<div class="qrfallback">Add a website in Edit details to generate this QR — or switch to “Save contact.”</div>';
@@ -336,7 +359,12 @@ function renderQR(){
     box.innerHTML='<div class="qrfallback">QR needs an internet connection to render. The Save / Share buttons still work offline.</div>';
     return;
   }
-  new QRCode(box,{text:text,width:146,height:146,colorDark:"#14181F",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+  try{
+    new QRCode(box,{text:text,width:146,height:146,colorDark:"#14181F",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+  }catch(err){
+    box.innerHTML='<div class="qrfallback">Too much data for a QR — use “Save to contacts” below to get the full details.</div>';
+    hint.style.display="none"; return;
+  }
   hint.innerHTML=reason+' <a id="dlqr">Save QR image</a>';
   const dl=document.getElementById("dlqr"); if(dl) dl.addEventListener("click",saveQR);
 }
@@ -370,14 +398,29 @@ function setLogoFromFile(file){
   reader.readAsDataURL(file);
 }
 
-function downloadVCard(){
-  const blob=new Blob([buildVCard()],{type:"text/vcard;charset=utf-8"});
+function vcfName(){ return (state.company||state.name||"contact").replace(/[^\w]+/g,"")+".vcf"; }
+
+async function saveContact(){
+  const vcard=buildVCard();
+  const name=vcfName();
+  // 1) Phones: hand the .vcf FILE to the OS share sheet. iOS opens "Add to
+  //    Contacts" and Android routes it to the contacts importer — a true save
+  //    to the phone, which a blob download can't do on iOS Safari.
+  try{
+    const file=new File([vcard],name,{type:"text/vcard"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:state.company||state.name||"Contact"});
+      return; // shared (or the user cancelled) — don't also trigger a download
+    }
+  }catch(e){ if(e&&e.name==="AbortError") return; /* real error: fall through */ }
+  // 2) Desktop / browsers without file sharing: download the .vcf to open & import.
+  const blob=new Blob([vcard],{type:"text/vcard;charset=utf-8"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
-  a.href=url; a.download=(state.company||state.name||"contact").replace(/[^\w]+/g,"")+".vcf";
+  a.href=url; a.download=name;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
-  toast("Contact file downloaded");
+  toast("Contact saved — open the .vcf to add it");
 }
 
 function buildShareText(){
@@ -442,10 +485,12 @@ function bindField(id,key){
   ["name","title","company","tagline","email","phone","website","location","linkedin"]
     .forEach(k=>bindField("f-"+k,k));
   renderCard();
-  setQRMode(state.qrMode||"website");
+  // Default to the contact QR (the vCard always has content); only use website mode
+  // when a website URL actually exists, so visitors never see a blank QR.
+  setQRMode(state.qrMode==="website" ? (state.website?"website":"contact") : (state.qrMode||"contact"));
   document.getElementById("qrWeb").addEventListener("click",()=>setQRMode("website"));
   document.getElementById("qrContact").addEventListener("click",()=>setQRMode("contact"));
-  document.getElementById("btnSave").addEventListener("click",downloadVCard);
+  document.getElementById("btnSave").addEventListener("click",saveContact);
   document.getElementById("btnShare").addEventListener("click",shareCard);
   const fLogo=document.getElementById("f-logo");
   if(fLogo) fLogo.addEventListener("change",e=>{ setLogoFromFile(e.target.files&&e.target.files[0]); e.target.value=""; });
