@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="brand/logo/kyara-icon.png">
 <meta name="theme-color" content="#0B0D11">
 <meta property="og:title" content="Kyara Intelligence">
-<meta property="og:description" content="AI Systems That Save Time and Grow Revenue">
+<meta property="og:description" content="Automation Systems That Save Time and Grow Revenue">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,15 +51,21 @@
     background:linear-gradient(90deg,transparent,var(--brass),transparent);opacity:.7;}
 
   /* brand logo lockup at the top of the card */
-  .brand{display:flex;justify-content:center;align-items:center;margin:2px 0 14px;}
-  .brand img{width:min(290px,84%);height:auto;display:block;
+  /* The logo SVG has a tall 1280x1024 canvas with empty padding above/below the artwork;
+     crop that dead space here (purely visual, the asset file is untouched) so the name sits closer. */
+  .brand{display:flex;justify-content:center;align-items:center;overflow:hidden;
+    width:min(390px,100%);aspect-ratio:1280/700;margin:2px auto 8px;}
+  /* >100% overscales the lockup so the "KYARA INTELLIGENCE SERVICES" text reads larger;
+     overflow:hidden on .brand clips only the SVG's empty side/top/bottom margins, not the art. */
+  .brand img{width:108%;height:auto;display:block;
     filter:drop-shadow(0 6px 22px rgba(45,212,191,.16));}
+  .brand.is-custom{width:auto;aspect-ratio:auto;overflow:visible;}
   .brand.is-custom img{width:74px;height:74px;object-fit:contain;border-radius:14px;}
 
-  .name{text-align:center;font-family:"Fraunces",serif;font-weight:500;font-size:27px;
+  .name{text-align:center;font-family:"Fraunces",serif;font-weight:400;font-size:13px;
     line-height:1.1;letter-spacing:-.01em;margin:0;}
-  .title{text-align:center;color:var(--muted);font-size:14px;margin:6px 0 0;}
-  .tagline{text-align:center;color:var(--faint);font-size:13px;margin:10px auto 0;max-width:30ch;line-height:1.45;}
+  .title{text-align:center;color:var(--muted);font-size:12px;margin:6px 0 0;}
+  .tagline{text-align:center;color:var(--ink);font-size:19px;font-weight:700;margin:4px auto 14px;max-width:30ch;line-height:1.45;}
 
   .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:22px 0 6px;}
 
@@ -142,21 +148,17 @@
 <div class="stage">
   <div class="card" id="card">
     <div class="brand" id="brand"><img id="logoImg" alt="Kyara Intelligence" src="brand/logo/kyara-fulllogo.svg" /></div>
+    <p class="tagline" id="d-tagline"></p>
     <h1 class="name" id="d-name">Your Name</h1>
     <p class="title" id="d-title">Title</p>
-    <p class="tagline" id="d-tagline"></p>
 
     <div class="rule"></div>
 
     <div class="rows" id="rows"></div>
 
     <div class="qrwrap">
-      <div class="qrtoggle">
-        <button id="qrWeb">Website</button>
-        <button id="qrContact" class="on">Save contact</button>
-      </div>
       <div id="qr"></div>
-      <div class="qrhint" id="qrhint">Scan to save the contact. <a id="dlqr">Save QR image</a></div>
+      <div class="qrhint" id="qrhint">Scan to visit Kyara Intelligence. <a id="dlqr">Save QR image</a></div>
     </div>
 
     <div class="actions">
@@ -212,21 +214,23 @@ const ICONS={
 };
 
 const DEFAULTS={
-  rev:3,
-  name:"Hina Dalsaniya & Kumar Patel",
-  title:"Owners & Co-Founders",
+  rev:6,
+  name:"Hina Dalsaniya",
+  title:"Owner",
   company:"Kyara Intelligence",
-  tagline:"AI Systems That Save Time and Grow Revenue",
+  tagline:"Automation Systems That Save Time and Grow Revenue",
   email:"info@kyaraintelligence.com",
   phone:"+1 705 571 9313",
   website:"",
-  location:"Ottawa, ON",                                  // shown on the public card
-  locationFull:"122 Pathfinder Way, Ottawa, ON K1X 0C9",  // only in the downloaded contact (vCard)
+  location:"Ottawa, ON",   // shown on the card and used in the downloaded contact (vCard)
   linkedin:"",
   logo:"",
   qrMode:"contact"
 };
 let state=null, mem=null, t=null;
+
+// Official Kyara Intelligence website QR (branded, embedded so it travels with the card when published).
+const WEBSITE_QR_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="146" height="146" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h33v33H0z"/><path stroke="#000000" d="M2 2.5h7m1 0h1m1 0h1m1 0h1m2 0h6m1 0h7M2 3.5h1m5 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m2 0h2m1 0h4m3 0h2m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h5m3 0h2m1 0h1m2 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m2 0h2m2 0h1m5 0h1m2 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 9.5h1m1 0h1m2 0h2m2 0h2M2 10.5h1m1 0h2m1 0h3m1 0h2m1 0h3m1 0h4m2 0h1m2 0h1m1 0h2M2 11.5h5m2 0h1m1 0h1m1 0h1m3 0h2m1 0h7m3 0h1M3 12.5h1m1 0h5m2 0h3m1 0h2m2 0h1m1 0h1m1 0h3m1 0h2M5 13.5h1m3 0h3m1 0h1m1 0h3m2 0h4m1 0h2m3 0h1M3 14.5h4m1 0h2m1 0h1m1 0h2m4 0h1m2 0h1m4 0h2M5 15.5h2m4 0h1m1 0h3m3 0h1m1 0h1m1 0h3m2 0h3M2 16.5h1m1 0h1m3 0h1m1 0h2m4 0h1m3 0h2m3 0h2m1 0h3M2 17.5h3m2 0h1m1 0h2m3 0h2m1 0h2m2 0h2m2 0h2m2 0h1M2 18.5h4m2 0h2m3 0h1m3 0h1m2 0h4m2 0h2m1 0h1M5 19.5h2m3 0h1m2 0h3m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3M2 20.5h1m1 0h2m2 0h2m7 0h3m2 0h2m1 0h1m2 0h1M6 21.5h1m2 0h3m5 0h3m2 0h2m4 0h1M3 22.5h1m4 0h1m3 0h1m2 0h1m1 0h4m1 0h7M10 23.5h4m1 0h2m1 0h1m1 0h1m1 0h1m3 0h5M2 24.5h7m1 0h4m1 0h1m2 0h1m2 0h2m1 0h1m1 0h2m1 0h1M2 25.5h1m5 0h1m1 0h2m1 0h1m3 0h2m1 0h1m1 0h1m3 0h2m1 0h2M2 26.5h1m1 0h3m1 0h1m2 0h2m3 0h2m1 0h1m2 0h5m1 0h2M2 27.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h4m1 0h3m2 0h2m2 0h1M2 28.5h1m1 0h3m1 0h1m1 0h1m4 0h2m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1M2 29.5h1m5 0h1m9 0h1m3 0h2m1 0h1m1 0h1m1 0h1M2 30.5h7m1 0h1m1 0h2m1 0h3m3 0h2m1 0h1m2 0h1m1 0h1"/></svg>`;
 
 async function load(){
   // Stored edits only apply while they match the file's rev. When I bump DEFAULTS.rev,
@@ -274,7 +278,7 @@ function buildVCard(){
   if(state.phone) L.push("TEL;TYPE=WORK,VOICE:"+state.phone.trim());
   if(state.website) L.push("URL:"+normUrl(state.website));
   if(state.linkedin) L.push("URL;TYPE=LinkedIn:"+normUrl(state.linkedin));
-  if(state.location||state.locationFull) L.push("ADR;TYPE=WORK:;;"+vcEsc(((state.locationFull||state.location)||"").trim())+";;;;");
+  if(state.location) L.push("ADR;TYPE=WORK:;;"+vcEsc((state.location||"").trim())+";;;;");
   const note=[];
   if(people && people!==fn) note.push(people);
   if(state.tagline) note.push(state.tagline.trim());
@@ -346,35 +350,28 @@ function renderCard(){
 function renderQR(){
   const box=document.getElementById("qr");
   const hint=document.getElementById("qrhint");
-  box.innerHTML="";
-  let text="", reason="";
-  if(state.qrMode==="contact"){ text=buildVCardQR(); reason="Scan to save the contact."; }
-  else { text=state.website?normUrl(state.website):""; reason="Scan to open the website."; }
-  if(state.qrMode==="website" && !text){
-    box.innerHTML='<div class="qrfallback">Add a website in Edit details to generate this QR — or switch to “Save contact.”</div>';
-    hint.style.display="none"; return;
-  }
+  // Single QR: the official Kyara Intelligence code (branded, embedded above).
+  box.innerHTML=WEBSITE_QR_SVG;
   hint.style.display="block";
-  if(typeof QRCode==="undefined"){
-    box.innerHTML='<div class="qrfallback">QR needs an internet connection to render. The Save / Share buttons still work offline.</div>';
-    return;
-  }
-  try{
-    new QRCode(box,{text:text,width:146,height:146,colorDark:"#14181F",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
-  }catch(err){
-    box.innerHTML='<div class="qrfallback">Too much data for a QR — use “Save to contacts” below to get the full details.</div>';
-    hint.style.display="none"; return;
-  }
-  hint.innerHTML=reason+' <a id="dlqr">Save QR image</a>';
+  hint.innerHTML='Scan to visit Kyara Intelligence. <a id="dlqr">Save QR image</a>';
   const dl=document.getElementById("dlqr"); if(dl) dl.addEventListener("click",saveQR);
 }
 
 function saveQR(){
+  const base=(state.company||"kyara").replace(/\s+/g,"")+"-QR";
   const c=document.querySelector("#qr canvas");
-  if(!c){ toast("QR not ready"); return; }
-  const a=document.createElement("a"); a.href=c.toDataURL("image/png");
-  a.download=(state.company||"kyara").replace(/\s+/g,"")+"-QR.png"; a.click();
-  toast("QR image saved");
+  if(c){
+    const a=document.createElement("a"); a.href=c.toDataURL("image/png");
+    a.download=base+".png"; a.click(); toast("QR image saved"); return;
+  }
+  const svg=document.querySelector("#qr svg");
+  if(svg){
+    const blob=new Blob([new XMLSerializer().serializeToString(svg)],{type:"image/svg+xml"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download=base+".svg"; a.click();
+    URL.revokeObjectURL(url); toast("QR image saved"); return;
+  }
+  toast("QR not ready");
 }
 
 function setLogoFromFile(file){
@@ -467,13 +464,6 @@ async function copyText(txt){
     try{document.execCommand("copy");toast("Copied");}catch(_){toast("Copy failed");} ta.remove(); }
 }
 
-function setQRMode(mode){
-  state.qrMode=mode;
-  document.getElementById("qrWeb").classList.toggle("on",mode==="website");
-  document.getElementById("qrContact").classList.toggle("on",mode==="contact");
-  renderQR(); queueSave();
-}
-
 function bindField(id,key){
   const el=document.getElementById(id);
   el.value=state[key]||"";
@@ -485,11 +475,6 @@ function bindField(id,key){
   ["name","title","company","tagline","email","phone","website","location","linkedin"]
     .forEach(k=>bindField("f-"+k,k));
   renderCard();
-  // Default to the contact QR (the vCard always has content); only use website mode
-  // when a website URL actually exists, so visitors never see a blank QR.
-  setQRMode(state.qrMode==="website" ? (state.website?"website":"contact") : (state.qrMode||"contact"));
-  document.getElementById("qrWeb").addEventListener("click",()=>setQRMode("website"));
-  document.getElementById("qrContact").addEventListener("click",()=>setQRMode("contact"));
   document.getElementById("btnSave").addEventListener("click",saveContact);
   document.getElementById("btnShare").addEventListener("click",shareCard);
   const fLogo=document.getElementById("f-logo");
