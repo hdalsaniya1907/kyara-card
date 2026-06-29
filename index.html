@@ -12,6 +12,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Generates the scan-to-save-contact QR from the vCard data at runtime. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
     --bg:#0B0D11;
@@ -92,6 +94,8 @@
   #qr img,#qr canvas{display:block;}
   .qrhint{color:var(--faint);font-size:11.5px;margin-top:9px;line-height:1.4;}
   .qrhint a{color:var(--brass);cursor:pointer;text-decoration:none;}
+  .qrlink{display:inline-block;margin-top:9px;color:var(--brass);font-size:12px;font-weight:600;text-decoration:none;letter-spacing:.02em;}
+  .qrlink:hover{text-decoration:underline;}
   .qrfallback{color:#9AA1AE;font-size:12px;text-align:center;padding:0 10px;}
 
   /* ---------- Actions ---------- */
@@ -153,7 +157,8 @@
 
     <div class="qrwrap">
       <div id="qr"></div>
-      <div class="qrhint" id="qrhint">Scan to visit Kyara Intelligence. <a id="dlqr">Save QR image</a></div>
+      <div class="qrhint" id="qrhint">Scan to save my contact. <a id="dlqr">Save QR image</a></div>
+      <a class="qrlink" id="siteLink" target="_blank" rel="noopener">Visit website &rarr;</a>
     </div>
 
     <div class="actions">
@@ -224,8 +229,8 @@ const DEFAULTS={
 };
 let state=null, mem=null, t=null;
 
-// Official Kyara Intelligence website QR (branded, embedded so it travels with the card when published).
-const WEBSITE_QR_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="146" height="146" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h33v33H0z"/><path stroke="#000000" d="M2 2.5h7m1 0h1m1 0h1m1 0h1m2 0h6m1 0h7M2 3.5h1m5 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m2 0h2m1 0h4m3 0h2m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h5m3 0h2m1 0h1m2 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m2 0h2m2 0h1m5 0h1m2 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 9.5h1m1 0h1m2 0h2m2 0h2M2 10.5h1m1 0h2m1 0h3m1 0h2m1 0h3m1 0h4m2 0h1m2 0h1m1 0h2M2 11.5h5m2 0h1m1 0h1m1 0h1m3 0h2m1 0h7m3 0h1M3 12.5h1m1 0h5m2 0h3m1 0h2m2 0h1m1 0h1m1 0h3m1 0h2M5 13.5h1m3 0h3m1 0h1m1 0h3m2 0h4m1 0h2m3 0h1M3 14.5h4m1 0h2m1 0h1m1 0h2m4 0h1m2 0h1m4 0h2M5 15.5h2m4 0h1m1 0h3m3 0h1m1 0h1m1 0h3m2 0h3M2 16.5h1m1 0h1m3 0h1m1 0h2m4 0h1m3 0h2m3 0h2m1 0h3M2 17.5h3m2 0h1m1 0h2m3 0h2m1 0h2m2 0h2m2 0h2m2 0h1M2 18.5h4m2 0h2m3 0h1m3 0h1m2 0h4m2 0h2m1 0h1M5 19.5h2m3 0h1m2 0h3m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3M2 20.5h1m1 0h2m2 0h2m7 0h3m2 0h2m1 0h1m2 0h1M6 21.5h1m2 0h3m5 0h3m2 0h2m4 0h1M3 22.5h1m4 0h1m3 0h1m2 0h1m1 0h4m1 0h7M10 23.5h4m1 0h2m1 0h1m1 0h1m1 0h1m3 0h5M2 24.5h7m1 0h4m1 0h1m2 0h1m2 0h2m1 0h1m1 0h2m1 0h1M2 25.5h1m5 0h1m1 0h2m1 0h1m3 0h2m1 0h1m1 0h1m3 0h2m1 0h2M2 26.5h1m1 0h3m1 0h1m2 0h2m3 0h2m1 0h1m2 0h5m1 0h2M2 27.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h4m1 0h3m2 0h2m2 0h1M2 28.5h1m1 0h3m1 0h1m1 0h1m4 0h2m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1M2 29.5h1m5 0h1m9 0h1m3 0h2m1 0h1m1 0h1m1 0h1M2 30.5h7m1 0h1m1 0h2m1 0h3m3 0h2m1 0h1m2 0h1m1 0h1"/></svg>`;
+// Kyara Intelligence website — shown as the "Visit website" link and embedded in the contact QR.
+const SITE_URL="https://kyaraintelligence.com";
 
 async function load(){
   // Stored edits only apply while they match the file's rev. When I bump DEFAULTS.rev,
@@ -282,6 +287,21 @@ function buildVCard(){
   return L.join("\r\n");
 }
 
+// Compact vCard for the QR. qrcodejs (v1) caps capacity (~2960 bits); the full vCard
+// can overflow and render blank, so the QR carries just the scan-to-save essentials.
+function buildVCardQR(){
+  const company=(state.company||"").trim();
+  const fn=company||(state.name||"").trim()||"Contact";
+  const L=["BEGIN:VCARD","VERSION:3.0","FN:"+vcEsc(fn)];
+  if(company) L.push("ORG:"+vcEsc(company));
+  if(state.title) L.push("TITLE:"+vcEsc(state.title.trim()));
+  if(state.phone) L.push("TEL;TYPE=WORK,VOICE:"+state.phone.trim());
+  if(state.email) L.push("EMAIL;TYPE=WORK:"+state.email.trim());
+  L.push("URL:"+(state.website?normUrl(state.website):SITE_URL));
+  L.push("END:VCARD");
+  return L.join("\r\n");
+}
+
 function row(type,label,value,href,wrap){
   const vc="rval"+(wrap?" wrap":"");
   return `<div class="row" data-type="${type}">
@@ -326,10 +346,20 @@ function renderCard(){
 function renderQR(){
   const box=document.getElementById("qr");
   const hint=document.getElementById("qrhint");
-  // Single QR: the official Kyara Intelligence code (branded, embedded above).
-  box.innerHTML=WEBSITE_QR_SVG;
+  box.innerHTML="";
   hint.style.display="block";
-  hint.innerHTML='Scan to visit Kyara Intelligence. <a id="dlqr">Save QR image</a>';
+  // QR encodes the contact (vCard) so a phone-camera scan offers "Add to Contacts" directly.
+  if(typeof QRCode==="undefined"){
+    box.innerHTML='<div class="qrfallback">QR needs a connection to render. Use Save to contacts / Share below.</div>';
+    hint.style.display="none"; return;
+  }
+  try{
+    new QRCode(box,{text:buildVCardQR(),width:146,height:146,colorDark:"#14181F",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+  }catch(err){
+    box.innerHTML='<div class="qrfallback">Couldn’t render the QR — use Save to contacts below.</div>';
+    hint.style.display="none"; return;
+  }
+  hint.innerHTML='Scan to save my contact. <a id="dlqr">Save QR image</a>';
   const dl=document.getElementById("dlqr"); if(dl) dl.addEventListener("click",saveQR);
 }
 
@@ -451,6 +481,7 @@ function bindField(id,key){
   ["name","title","company","tagline","email","phone","website","location","linkedin"]
     .forEach(k=>bindField("f-"+k,k));
   renderCard();
+  const siteLink=document.getElementById("siteLink"); if(siteLink) siteLink.href=SITE_URL;
   document.getElementById("btnSave").addEventListener("click",saveContact);
   document.getElementById("btnShare").addEventListener("click",shareCard);
   const fLogo=document.getElementById("f-logo");
