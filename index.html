@@ -12,7 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
     --bg:#0B0D11;
@@ -89,10 +88,6 @@
 
   /* ---------- QR ---------- */
   .qrwrap{margin-top:20px;text-align:center;}
-  .qrtoggle{display:inline-flex;background:#1E2530;border:1px solid var(--line);border-radius:99px;padding:3px;margin-bottom:14px;}
-  .qrtoggle button{appearance:none;border:none;background:none;color:var(--muted);font:inherit;font-size:12px;font-weight:500;
-    padding:6px 15px;border-radius:99px;cursor:pointer;}
-  .qrtoggle button.on{background:var(--brass);color:#15110A;font-weight:600;}
   #qr{width:168px;height:168px;margin:0 auto;background:#fff;border-radius:14px;padding:11px;display:flex;align-items:center;justify-content:center;}
   #qr img,#qr canvas{display:block;}
   .qrhint{color:var(--faint);font-size:11.5px;margin-top:9px;line-height:1.4;}
@@ -136,7 +131,7 @@
   @media print{
     body{background:#fff;padding:0;}
     .card{border:1px solid #ccc;box-shadow:none;background:#14181F;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .editbtn,.editor,.actions,.qrtoggle,.rcopy,footer{display:none!important;}
+    .editbtn,.editor,.actions,.rcopy,footer{display:none!important;}
   }
 
   .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#fff;color:#15110A;
@@ -283,25 +278,6 @@ function buildVCard(){
   if(people && people!==fn) note.push(people);
   if(state.tagline) note.push(state.tagline.trim());
   if(note.length) L.push("NOTE:"+vcEsc(note.join(" — ")));
-  L.push("END:VCARD");
-  return L.join("\r\n");
-}
-
-// Compact vCard for the QR only. qrcodejs (v1) caps capacity (~2960 bits), so the
-// full vCard above overflows and renders blank. The QR carries the essentials —
-// name, company, title, phone, email, website — which is all a scan-to-save needs.
-function buildVCardQR(){
-  const company=(state.company||"").trim();
-  const people=(state.name||"").trim();
-  const fn=company||people||"Contact";
-  const L=[];
-  L.push("BEGIN:VCARD","VERSION:3.0");
-  L.push("FN:"+vcEsc(fn));
-  if(company) L.push("ORG:"+vcEsc(company));
-  if(state.title) L.push("TITLE:"+vcEsc(state.title.trim()));
-  if(state.phone) L.push("TEL;TYPE=WORK,VOICE:"+state.phone.trim());
-  if(state.email) L.push("EMAIL;TYPE=WORK:"+state.email.trim());
-  if(state.website) L.push("URL:"+normUrl(state.website));
   L.push("END:VCARD");
   return L.join("\r\n");
 }
